@@ -1,0 +1,27 @@
+{
+    "compilerOptions": {
+        "allowJs": true,
+        "baseUrl": "./src",
+        "isolatedModules": false,
+        "skipLibCheck": true,
+        "alwaysStrict": false,
+        "esModuleInterop": true,
+        "jsx": "react",
+        "moduleResolution": "node",
+        "noEmit": true,
+        "noFallthroughCasesInSwitch": true,
+        "noImplicitThis": true,
+        "noImplicitAny": true,
+        "noImplicitReturns": true,
+        "strictNullChecks": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "strict": true,
+        "target": "ESNext",
+        "module": "commonjs",
+        "sourceMap": true,
+        "experimentalDecorators": true
+    },
+    "include": ["./src/**/*"],
+    "exclude": ["node_modules"]
+}
