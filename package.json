@@ -29,6 +29,7 @@
     "@types/react-dom": "^18.0.4",
     "@typescript-eslint/eslint-plugin": "^5.25.0",
     "buffer": "^6.0.3",
+    "cors": "^2.8.5",
     "esbuild-loader": "^2.19.0",
     "eslint": "^8.13.0",
     "eslint-config-airbnb": "^19.0.4",

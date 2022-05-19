@@ -5,6 +5,8 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = function() {
   const src = path.join(__dirname, 'src');
+  const lib = path.join(__dirname, '../..');
+  console.log(lib);
   const dist = path.join(__dirname, 'build');
 
   const bundleName = `[name].[chunkhash:6].js`;
@@ -13,6 +15,7 @@ module.exports = function() {
       template: 'index.html',
     }),
     new webpack.DefinePlugin({
+      'API': '"http://localhost:4141"',
       'process.env': '{}',
       'process.platform': '"browser"',
       'process.stdout': 'null',
@@ -38,7 +41,7 @@ module.exports = function() {
         },
         {
           test: /(\.jsx?|\.tsx?)$/,
-          include: [src],
+          include: [src, lib],
           use: [
             {
               loader: 'esbuild-loader',
