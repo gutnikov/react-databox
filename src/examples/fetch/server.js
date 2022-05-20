@@ -9,10 +9,10 @@ const port = 4141;
 app.use(cors());
 
 app.get('/timezones', (req, res) => {
-  const search = req.query.search || '';
+  const parsed = JSON.parse(req.query.q || '{}');
   setTimeout(() => {
     res.json({ items: timezones.filter(it => {
-        return it.value.indexOf(search) !== -1;
+        return it.value.indexOf(parsed.search) !== -1;
     })});
   }, 200);
 });

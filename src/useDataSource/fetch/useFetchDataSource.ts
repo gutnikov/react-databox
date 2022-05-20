@@ -1,4 +1,4 @@
-import { createDataBox, DataBoxProps, Cancellable, DataBoxHook, DataBoxComponent } from '..';
+import { Cancellable, DataSourceHookValue, DataSourceInit, Handle, useDataSource } from '..';
 
 export type RequestSerializer<RQ> = (req: RQ | undefined) => string;
 export type ResponseDeserializer<V> = (res: unknown) => V | undefined;
@@ -20,12 +20,11 @@ const defaults = {
 };
 
 function fetchRequest<RQ, V>(
+  handle: Handle,
   url: string,
   rq: RQ | undefined,
   params: HttpRequestParams<RQ, V> | undefined,
-  setPending: (p: boolean) => void,
-  setValue: (v: V) => void,
-  setError: (e: Error) => void,
+  onUpdate: (handle: string, req: RQ | undefined, p: boolean, e?: Error, v?: V) => void,
 ): Cancellable {
   const { method, headers, serializer, deserializer } = { ...defaults, ...params };
   const srlReq = serializer(rq);
@@ -44,12 +43,23 @@ function fetchRequest<RQ, V>(
     signal: controller.signal,
   });
 
+  function setPending(p: boolean): void {
+    onUpdate(handle, rq, p);
+  }
+  function setValue(v?: V): void {
+    onUpdate(handle, rq, false, undefined, v);
+  }
+  function setError(e?: Error): void {
+    onUpdate(handle, rq, false, e, undefined);
+  }
+
   setPending(true);
   fetchPromise
     .then(deserializer)
     .then(setValue)
     .catch(setError)
     .finally(() => {
+      // TODO: a bug, response is reset. Change onUpdate to distinct functions
       setPending(false);
     });
 
@@ -58,14 +68,12 @@ function fetchRequest<RQ, V>(
   };
 }
 
-export type FetchDataBoxProps<RQ, V> = DataBoxProps<RQ, V, HttpRequestParams<RQ, V>>;
+export type FetchDataSourceInit<RQ, V> = Partial<DataSourceInit<RQ, V, HttpRequestParams<RQ, V>>>;
 
-export function createFetchDataBox<RQ, V>(
-  url: string,
-  params: HttpRequestParams<RQ, V>,
-): [
-  DataBoxHook<RQ, V, HttpRequestParams<RQ, V>>,
-  DataBoxComponent<RQ, V, HttpRequestParams<RQ, V>>,
-] {
-  return createDataBox<RQ, V, HttpRequestParams<RQ, V>>(url, params, fetchRequest);
+export function useFetchDataSource<RQ, V>(
+  init: FetchDataSourceInit<RQ, V>,
+): DataSourceHookValue<RQ, V> {
+  return useDataSource({ ...init, performRequest: fetchRequest });
 }
+
+export * from '..';

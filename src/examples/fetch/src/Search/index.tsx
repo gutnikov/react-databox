@@ -1,8 +1,25 @@
-import React, { ReactElement } from 'react';
-import { GetTimezones, useTimezones } from '../Api/GetTimezones';
+import React, { ReactElement, useEffect, useState } from 'react';
+import { useTimezones, Handle } from '../Api/useTimezones';
 
-function SearchContent(): ReactElement | null {
-  const { pending, value, error } = useTimezones();
+function SearchInput(props: { handle: Handle }): ReactElement | null {
+  const { handle } = props;
+  const [, setRequest] = useTimezones({ handle });
+  const [search, setSearch] = useState('');
+
+  useEffect(() => {
+    setRequest({ search });
+  }, [search]);
+
+  return (
+    <div>
+      <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} />
+    </div>
+  );
+}
+
+function SearchContent(props: { handle: Handle }): ReactElement | null {
+  const { handle } = props;
+  const [{ pending, value, error }] = useTimezones({ handle });
   if (error) {
     return <div>{`Error: ${error}`}</div>;
   }
@@ -24,9 +41,17 @@ function SearchContent(): ReactElement | null {
 }
 
 export function Search(): ReactElement {
+  useTimezones({
+    debug: true,
+    request: {
+      search: 'Hawaiian',
+    },
+  });
   return (
-    <GetTimezones name="GetTimezones" debug>
-      <SearchContent />
-    </GetTimezones>
+    <div>
+      Done
+      {/* <SearchInput handle={handle} />
+      <SearchContent handle={handle} /> */}
+    </div>
   );
 }

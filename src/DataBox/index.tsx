@@ -7,7 +7,6 @@ import React, {
   useReducer,
   Reducer,
   useContext,
-  useState,
 } from 'react';
 
 export type Cancellable = () => void;
@@ -33,19 +32,27 @@ export type DataBoxProps<RQ, V, P> = PropsWithChildren<{
 
 export type DataBoxContextValue<RQ, V, P> = {
   pending: boolean;
-  request?: RQ;
+  currentRequest?: RQ;
+  nextRequest?: RQ;
   params?: P;
   value?: V;
   error?: Error;
   debug?: boolean;
   name?: string;
   version: number;
-  setRequest: (r: RQ | undefined, params: P | undefined) => void;
+  setRequest: (r: RQ | undefined, params?: P) => void;
   setOutdated: () => void;
 };
 
 export type DataBoxAction<RQ, V, P> =
-  | { type: 'setRequest'; req: RQ | undefined; params: P | undefined }
+  | {
+      type: 'setNextRequest';
+      req: RQ | undefined;
+      params?: P;
+      keepValue?: boolean;
+      keepError?: boolean;
+    }
+  | { type: 'commitRequest' }
   | { type: 'setValue'; value: V | undefined }
   | { type: 'setError'; error: Error | undefined }
   | { type: 'setOutdated' }
@@ -61,16 +68,31 @@ function log(...args: unknown[]): void {
   console.log(...args);
 }
 
+const emptyFn = (): void => undefined;
+
 function reducer<RQ, V, P>(
   state: DataBoxContextValue<RQ, V, P>,
   action: DataBoxAction<RQ, V, P>,
 ): DataBoxContextValue<RQ, V, P> {
   let newState;
   switch (action.type) {
-    case 'setRequest':
+    case 'setNextRequest':
+      // Same request fired?
       newState = {
         ...state,
-        request: action.req,
+        nextRequest: action.req,
+        params: action.params,
+        error: action.keepError ? state.error : undefined,
+        value: action.keepValue ? state.value : undefined,
+      };
+      break;
+
+    case 'commitRequest':
+      newState = {
+        ...state,
+        currentRequest: state.nextRequest,
+        nextRequest: undefined,
+        error: undefined,
       };
       break;
 
@@ -84,6 +106,7 @@ function reducer<RQ, V, P>(
     case 'setOutdated':
       newState = {
         ...state,
+        nextRequest: state.currentRequest,
         version: state.version + 1,
       };
       break;
@@ -101,6 +124,7 @@ function reducer<RQ, V, P>(
         pending: action.pending,
       };
       break;
+
     default:
       newState = state;
   }
@@ -113,25 +137,32 @@ function reducer<RQ, V, P>(
 export function DataBox<RQ, V, P>(props: DataBoxProps<RQ, V, P>): ReactElement {
   const { url, params, Context, request, performRequest, debug, name, children } = props;
 
-  const setRequest = (req: RQ | undefined, params: P | undefined): void =>
-    dispatch({ type: 'setRequest', req, params });
+  const setNextRequest = (req: RQ | undefined, params: P | undefined): void =>
+    dispatch({ type: 'setNextRequest', req, params });
   const setOutdated = (): void => dispatch({ type: 'setOutdated' });
+
+  console.log('render');
 
   const [state, dispatch] = useReducer<DataBoxReducer<RQ, V, P>>(reducer, {
     pending: false,
-    request,
+    nextRequest: request,
     version: 0,
     debug,
     name,
-    setRequest,
+    setRequest: setNextRequest,
     setOutdated,
   });
 
   useEffect(() => {
+    if (!state.nextRequest) {
+      return emptyFn;
+    }
+    const commitRequest = (): void => dispatch({ type: 'commitRequest' });
     const setPending = (pending: boolean): void => dispatch({ type: 'setPending', pending });
     const setValue = (value: V | undefined): void => dispatch({ type: 'setValue', value });
     const setError = (error: Error | undefined): void => dispatch({ type: 'setError', error });
 
+    const request = state.nextRequest;
     if (!url) {
       throw new Error('DataBox url is undefined');
     }
@@ -139,19 +170,16 @@ export function DataBox<RQ, V, P>(props: DataBoxProps<RQ, V, P>): ReactElement {
       throw new Error('DataBox request function is undefined');
     }
 
-    const cancel = performRequest(url, state.request, params, setPending, setValue, setError);
+    // At this moment nextRequest moved to currentRequest state field
+    commitRequest();
+    const cancel = performRequest(url, request, params, setPending, setValue, setError);
     return () => {
       if (debug) {
         log('Canceling request ');
       }
       cancel();
     };
-  }, [url, params, performRequest, state.request, state.version]);
-
-  // A request prop changed
-  useEffect(() => {
-    setRequest(request, params);
-  }, [request, params]);
+  }, [url, params, performRequest, state.nextRequest, state.version]);
 
   if (!Context) {
     throw new Error('DataBox context is undefined');
