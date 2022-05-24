@@ -1,13 +1,14 @@
 import React, { ReactElement, useEffect, useState } from 'react';
-import { useTimezones, Handle } from '../Api/useTimezones';
+import { useTimezones, Response } from '../Api/useTimezones';
 
-function SearchInput(props: { handle: Handle }): ReactElement | null {
-  const { handle } = props;
-  const [, setRequest] = useTimezones({ handle });
-  const [search, setSearch] = useState('');
-
+function SearchInput(props: {
+  search?: string;
+  onSearch: (v: string) => void;
+}): ReactElement | null {
+  const { search: initialSearch, onSearch } = props;
+  const [search, setSearch] = useState<string>(initialSearch || '');
   useEffect(() => {
-    setRequest({ search });
+    onSearch(search);
   }, [search]);
 
   return (
@@ -17,9 +18,12 @@ function SearchInput(props: { handle: Handle }): ReactElement | null {
   );
 }
 
-function SearchContent(props: { handle: Handle }): ReactElement | null {
-  const { handle } = props;
-  const [{ pending, value, error }] = useTimezones({ handle });
+function SearchContent(props: {
+  pending: boolean;
+  error?: Error;
+  value?: Response;
+}): ReactElement | null {
+  const { error, pending, value } = props;
   if (error) {
     return <div>{`Error: ${error}`}</div>;
   }
@@ -41,17 +45,22 @@ function SearchContent(props: { handle: Handle }): ReactElement | null {
 }
 
 export function Search(): ReactElement {
-  useTimezones({
-    debug: true,
+  const [state, setRequest] = useTimezones({
     request: {
       search: 'Hawaiian',
     },
   });
+
+  function handleSearch(s: string): void {
+    setRequest({
+      search: s,
+    });
+  }
+
   return (
     <div>
-      Done
-      {/* <SearchInput handle={handle} />
-      <SearchContent handle={handle} /> */}
+      <SearchInput search={state.request?.search} onSearch={handleSearch} />
+      <SearchContent {...state} />
     </div>
   );
 }

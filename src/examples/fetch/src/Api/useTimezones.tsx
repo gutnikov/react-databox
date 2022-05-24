@@ -1,6 +1,6 @@
 import {
   useFetchDataSource,
-  DataSourceHookValue,
+  FetchDataSourceHookValue,
   FetchDataSourceInit,
 } from '../useDataSource/fetch/useFetchDataSource';
 
@@ -9,11 +9,11 @@ export * from '../useDataSource/fetch/useFetchDataSource';
 // Defined in declare plugin
 declare const API: string;
 
-type Request = {
+export type Request = {
   search: string;
 };
 
-type Timezone = {
+export type Timezone = {
   value: string;
   abbr: string;
   offset: number;
@@ -22,14 +22,10 @@ type Timezone = {
   utc: string[];
 };
 
-type Response = {
+export type Response = {
   items: Timezone[];
 };
 
 export const useTimezones = (
   init: FetchDataSourceInit<Request, Response>,
-): DataSourceHookValue<Request, Response> =>
-  useFetchDataSource({
-    ...init,
-    url: `${API}/timezones`,
-  });
+): FetchDataSourceHookValue<Request, Response> => useFetchDataSource(`${API}/timezones`, init);
