@@ -74,13 +74,8 @@ export function useDataSource<RQ, V, P>(
   const [dataSource] = useState(createDataSource(init, setState));
 
   function setState(update: DataSourceState<RQ, V>): void {
-    console.log(state, update);
     _setState({ ...state, ...update });
   }
-
-  useEffect(() => {
-    console.log('state=', state);
-  }, [state]);
 
   useEffect(() => {
     dataSource.listen(setState);
