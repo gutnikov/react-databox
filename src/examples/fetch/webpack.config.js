@@ -65,6 +65,9 @@ module.exports = function() {
     resolve: {
       modules: ['node_modules'],
       extensions: ['.js', '.jsx', '.ts', '.tsx'],
+      alias: {
+        lib,
+      },
       fallback: {
         path: require.resolve('path-browserify'),
         tty: require.resolve('tty-browserify'),

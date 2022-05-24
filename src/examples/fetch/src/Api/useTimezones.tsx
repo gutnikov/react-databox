@@ -2,9 +2,9 @@ import {
   useFetchDataSource,
   FetchDataSourceHookValue,
   FetchDataSourceInit,
-} from '../useDataSource/fetch/useFetchDataSource';
+} from 'lib/useDataSource/fetch/useFetchDataSource';
 
-export * from '../useDataSource/fetch/useFetchDataSource';
+export * from 'lib/useDataSource/fetch/useFetchDataSource';
 
 // Defined in declare plugin
 declare const API: string;
