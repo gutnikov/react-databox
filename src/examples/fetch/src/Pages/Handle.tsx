@@ -8,21 +8,12 @@ export function Search(props: {
   onSearch: (s: string) => void;
 }): ReactElement {
   const { handle, rkey, search, onSearch } = props;
-  const { state, emit, cancel } = useTimezones({
+  const { state, cancel } = useTimezones({
     options: {
       handle,
     },
   });
   const [longResponse, setLongResponse] = useState(false);
-
-  useEffect(() => {
-    emit({
-      data: {
-        search,
-        delay: longResponse ? '3000' : '0',
-      },
-    });
-  }, [search]);
 
   const content = useMemo(() => {
     const { error, pending, value } = state;

@@ -37,7 +37,7 @@ function getNewbornState<V>(): DataSourceState<V> {
 function createUnaryCallObject<RQ, V>(
   init: DataSourceInit<RQ, UnaryCallOptions<RQ, V>>,
 ): UnaryCallObject<RQ, V> {
-  const { options } = init;
+  const { options, initialMessage } = init;
   const listeners: UnaryCallUpdateListener[] = [];
 
   // Hooks chains
@@ -91,6 +91,11 @@ function createUnaryCallObject<RQ, V>(
       doCancel();
     }
   }
+
+  if (initialMessage) {
+    setRequest(initialMessage);
+  }
+
   return dsr;
 }
 
