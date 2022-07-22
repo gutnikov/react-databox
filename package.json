@@ -4,6 +4,7 @@
   "description": "An easy to use data abstraction layer for react",
   "main": "index.js",
   "scripts": {
+    "examples:fetch:server": "node src/examples/fetch/server.js",
     "examples:fetch": "./node_modules/.bin/webpack-dev-server --config src/examples/fetch/webpack.config.js --devtool inline-cheap-source-map --progress"
   },
   "repository": {
@@ -21,10 +22,12 @@
   },
   "homepage": "https://github.com/gutnikov/react-databox#readme",
   "dependencies": {
+    "bootstrap": "^5.1.3",
     "react": "^18.1.0",
     "react-dom": "^18.1.0"
   },
   "devDependencies": {
+    "@types/node-fetch": "^2.6.2",
     "@types/react": "^18.0.9",
     "@types/react-dom": "^18.0.4",
     "@typescript-eslint/eslint-plugin": "^5.25.0",

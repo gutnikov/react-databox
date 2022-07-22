@@ -1,9 +1,13 @@
 import React, { ReactElement } from 'react';
 import { createRoot } from 'react-dom/client';
-import { Search } from './Search';
+import { Basic } from './Pages/Basic';
+// import { Hooks } from './Pages/Hooks';
+import { Handle } from './Pages/Handle';
 
 function App(): ReactElement {
-  return <Search />;
+  // return <Basic />;
+  // return <Hooks />;
+  return <Handle />;
 }
 
 const container = document.getElementById('root');

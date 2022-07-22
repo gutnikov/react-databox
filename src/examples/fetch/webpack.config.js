@@ -5,8 +5,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = function() {
   const src = path.join(__dirname, 'src');
-  const lib = path.join(__dirname, '../..');
-  console.log(lib);
+  const useDataSource = path.join(__dirname, '../../useDataSource');
   const dist = path.join(__dirname, 'build');
 
   const bundleName = `[name].[chunkhash:6].js`;
@@ -41,7 +40,7 @@ module.exports = function() {
         },
         {
           test: /(\.jsx?|\.tsx?)$/,
-          include: [src, lib],
+          include: [src, useDataSource],
           use: [
             {
               loader: 'esbuild-loader',
@@ -66,7 +65,7 @@ module.exports = function() {
       modules: ['node_modules'],
       extensions: ['.js', '.jsx', '.ts', '.tsx'],
       alias: {
-        lib,
+        useDataSource,
       },
       fallback: {
         path: require.resolve('path-browserify'),

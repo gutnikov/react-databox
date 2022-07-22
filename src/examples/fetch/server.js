@@ -9,12 +9,13 @@ const port = 4141;
 app.use(cors());
 
 app.get('/timezones', (req, res) => {
-  const parsed = JSON.parse(req.query.q || '{}');
+  const delay = Number.parseInt(req.query.delay);
+  console.log()
   setTimeout(() => {
     res.json({ items: timezones.filter(it => {
-        return it.value.indexOf(parsed.search) !== -1;
+        return it.value.indexOf(req.query.search) !== -1;
     })});
-  }, 200);
+  }, Number.isNaN(delay) ? 200 : delay);
 });
 
 app.listen(port, () => {
